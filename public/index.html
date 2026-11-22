@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kling AI 4.0</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #101426;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  background: #202942;
+  padding: 22px;
+  border-radius: 16px;
+}
+
+h1 {
+  text-align: center;
+  color: #8498ff;
+}
+
+label {
+  display: block;
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+textarea, input {
+  width: 100%;
+  padding: 13px;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid #526080;
+  background: #111a30;
+  color: white;
+}
+
+textarea {
+  height: 120px;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  margin-top: 25px;
+  background: #647cff;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #111a30;
+  padding: 12px;
+  border-radius: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>KLING AI 4.0</h1>
+
+<p>Tạo video AI từ hình ảnh</p>
+
+<label>Mô tả video</label>
+<textarea id="prompt"
+placeholder="Nhập mô tả chuyển động..."></textarea>
+
+<label>Ảnh đầu tiên (URL)</label>
+<input id="first" placeholder="URL ảnh đầu">
+
+<label>Ảnh giữa (URL)</label>
+<input id="middle" placeholder="URL ảnh giữa">
+
+<label>Ảnh cuối (URL)</label>
+<input id="last" placeholder="URL ảnh cuối">
+
+<button onclick="generateVideo()" id="btn">
+TẠO VIDEO
+</button>
+
+<h3>Kết quả</h3>
+<pre id="result">Sẵn sàng tạo video...</pre>
+
+</div>
+
+<script>
+async function generateVideo() {
+
+  const prompt = document.getElementById("prompt").value;
+
+  if (!prompt.trim()) {
+    alert("Vui lòng nhập mô tả video!");
+    return;
+  }
+
+  const btn = document.getElementById("btn");
+  const result = document.getElementById("result");
+
+  btn.disabled = true;
+  btn.innerText = "ĐANG XỬ LÝ...";
+
+  const data = {
+    prompt: prompt,
+    first_frame: document.getElementById("first").value,
+    middle_frame: document.getElementById("middle").value,
+    last_frame: document.getElementById("last").value
+  };
+
+  Object.keys(data).forEach(key => {
+    if (!data[key]) delete data[key];
+  });
+
+  try {
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    const json = await response.json();
+
+    result.innerText = JSON.stringify(json, null, 2);
+
+  } catch (error) {
+    result.innerText = error.message;
+  }
+
+  btn.disabled = false;
+  btn.innerText = "TẠO VIDEO";
+}
+</script>
+
+</body>
+</html>
