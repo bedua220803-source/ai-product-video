@@ -63,6 +63,10 @@ button {
   font-weight: bold;
 }
 
+button:disabled {
+  opacity: 0.6;
+}
+
 pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -74,16 +78,14 @@ pre {
 </head>
 
 <body>
-
 <div class="container">
 
 <h1>KLING AI 4.0</h1>
 
 <p>Tạo video AI từ hình ảnh</p>
 
-<label>Mô tả video</label>
-<textarea id="prompt"
-placeholder="Nhập mô tả chuyển động..."></textarea>
+<label>Video mô tả</label>
+<textarea id="prompt" placeholder="Nhập mô tả chuyển động..."></textarea>
 
 <label>Ảnh đầu tiên (URL)</label>
 <input id="first" placeholder="URL ảnh đầu">
@@ -91,7 +93,7 @@ placeholder="Nhập mô tả chuyển động..."></textarea>
 <label>Ảnh giữa (URL)</label>
 <input id="middle" placeholder="URL ảnh giữa">
 
-<label>Ảnh cuối (URL)</label>
+<label>Ảnh cuối cùng (URL)</label>
 <input id="last" placeholder="URL ảnh cuối">
 
 <button onclick="generateVideo()" id="btn">
@@ -106,10 +108,10 @@ TẠO VIDEO
 <script>
 async function generateVideo() {
 
-  const prompt = document.getElementById("prompt").value;
+  const prompt = document.getElementById("prompt").value.trim();
 
-  if (!prompt.trim()) {
-    alert("Vui lòng nhập mô tả video!");
+  if (!prompt) {
+    alert("Xin vui lòng nhập mô tả video!");
     return;
   }
 
@@ -118,12 +120,13 @@ async function generateVideo() {
 
   btn.disabled = true;
   btn.innerText = "ĐANG XỬ LÝ...";
+  result.innerText = "Đang gửi yêu cầu...";
 
   const data = {
     prompt: prompt,
-    first_frame: document.getElementById("first").value,
-    middle_frame: document.getElementById("middle").value,
-    last_frame: document.getElementById("last").value
+    first_frame: document.getElementById("first").value.trim(),
+    middle_frame: document.getElementById("middle").value.trim(),
+    last_frame: document.getElementById("last").value.trim()
   };
 
   Object.keys(data).forEach(key => {
@@ -143,8 +146,12 @@ async function generateVideo() {
 
     result.innerText = JSON.stringify(json, null, 2);
 
+    if (!response.ok) {
+      result.innerText = "Lỗi: " + (json.error || response.status);
+    }
+
   } catch (error) {
-    result.innerText = error.message;
+    result.innerText = "Lỗi kết nối: " + error.message;
   }
 
   btn.disabled = false;
